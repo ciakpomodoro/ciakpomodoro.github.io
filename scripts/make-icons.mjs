@@ -36,11 +36,16 @@ const svg = (round, scale) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="
 
 writeFileSync('public/icon.svg', svg(true, 4.0))
 
-const png = (name, size, round, scale) =>
-  sharp(Buffer.from(svg(round, scale))).resize(size, size).png().toFile(`public/${name}`)
+// opaque = senza trasparenza (obbligatorio per l'icona iPhone, altrimenti compare uno sfondo nero)
+const png = (name, size, round, scale, opaque = false) => {
+  let img = sharp(Buffer.from(svg(round, scale))).resize(size, size)
+  if (opaque) img = img.flatten({ background: BG })
+  return img.png().toFile(`public/${name}`)
+}
 
 await png('pwa-192.png', 192, true, 4.0)
 await png('pwa-512.png', 512, true, 4.0)
-await png('pwa-maskable-512.png', 512, false, 3.2)
-await png('apple-touch-icon.png', 180, false, 3.6)
+await png('pwa-maskable-512.png', 512, false, 3.2, true)
+await png('apple-touch-icon.png', 180, false, 3.6, true)
+await png('favicon-32.png', 32, true, 4.4)
 console.log('Icone create in public/')
