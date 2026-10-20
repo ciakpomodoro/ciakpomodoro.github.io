@@ -100,9 +100,11 @@ input:focus-visible {
   --accent: #ea9366;
 }
 
+/* Lo sfondo esce oltre i bordi dello schermo: su iPhone, se l'area visibile risulta più corta,
+   la luce arriva comunque fino in fondo e non resta nessuna fascia piatta */
 .orbs {
-  position: absolute;
-  inset: 0;
+  position: fixed;
+  inset: -200px 0 -300px;
   pointer-events: none;
   overflow: hidden;
 }
@@ -132,7 +134,7 @@ input:focus-visible {
 .orbs i:nth-child(3) {
   width: 46vmin;
   height: 46vmin;
-  bottom: -8%;
+  bottom: 240px;
   left: 18%;
   opacity: 0.35;
   animation: drift3 25s ease-in-out infinite alternate;
@@ -156,8 +158,8 @@ input:focus-visible {
   }
 }
 .grain {
-  position: absolute;
-  inset: 0;
+  position: fixed;
+  inset: -200px 0 -300px;
   pointer-events: none;
   opacity: 0.08;
   mix-blend-mode: overlay;
@@ -198,7 +200,7 @@ input:focus-visible {
 }
 .splash {
   position: fixed;
-  inset: 0;
+  inset: -300px 0;
   z-index: 30;
   background: var(--bg);
   display: grid;
