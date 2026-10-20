@@ -28,7 +28,15 @@ body,
 #root {
   height: 100%;
 }
+html {
+  background: var(--bg);
+}
 body {
+  /* l'app occupa tutto lo schermo, anche sotto isola e barra home; niente scorrimento né rimbalzo */
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  overflow: hidden;
   margin: 0;
   background: var(--bg);
   color: var(--text);
@@ -73,11 +81,12 @@ input:focus-visible {
 
 /* ---------- Pagina ---------- */
 .app {
-  position: relative;
-  height: 100dvh;
+  position: fixed;
+  inset: 0;
   overflow: hidden;
-  padding: max(14px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom))
-    max(20px, env(safe-area-inset-left));
+  /* lo sfondo va fino ai bordi; i contenuti restano sotto l'isola e sopra la barra home */
+  padding: calc(env(safe-area-inset-top, 0px) + 10px) max(20px, env(safe-area-inset-right))
+    calc(env(safe-area-inset-bottom, 0px) + 16px) max(20px, env(safe-area-inset-left));
   transition: --accent 1s ease;
 }
 /* Tutte e tre le fasi restano nella tua palette: arancio, crema, pesca */
@@ -212,7 +221,6 @@ input:focus-visible {
   height: 150px;
   z-index: 31;
   pointer-events: none;
-  will-change: transform;
 }
 .logo-fly.docked {
   z-index: 5;

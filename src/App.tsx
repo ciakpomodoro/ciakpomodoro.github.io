@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Logo } from './components/Logo'
 import { actions, getState, remainingOf, tick, todayStat, useStore, type FinishEvent, type Phase } from './store'
@@ -39,21 +39,38 @@ export default function App() {
   const [pos, setPos] = useState({ cx: 0, cy: 0, tx: 0, ty: 0, s: 1 })
 
   // Apertura in tre tempi: il logo si compone al centro, vola in alto a sinistra, poi compare l'app
-  useLayoutEffect(() => {
-    const measure = () => {
-      const r = slot.current?.getBoundingClientRect()
-      setPos({
+  const measure = useCallback(() => {
+    const r = slot.current?.getBoundingClientRect()
+    setPos((p) => {
+      const next = {
         cx: window.innerWidth / 2 - LOGO / 2,
         cy: window.innerHeight / 2 - LOGO / 2,
         tx: r?.left ?? 16,
         ty: r?.top ?? 12,
         s: (r?.width ?? 40) / LOGO,
-      })
-    }
-    measure()
-    window.addEventListener('resize', measure)
-    return () => window.removeEventListener('resize', measure)
+      }
+      return p.cx === next.cx && p.cy === next.cy && p.tx === next.tx && p.ty === next.ty && p.s === next.s ? p : next
+    })
   }, [])
+
+  // Su iPhone le distanze dai bordi (isola, barra home) arrivano con un attimo di ritardo:
+  // si rimisura più volte, e a ogni rotazione o ritorno nell'app
+  useLayoutEffect(() => {
+    measure()
+    const timers = [150, 500, 1200, 2500].map((ms) => setTimeout(measure, ms))
+    const events = ['resize', 'orientationchange', 'pageshow']
+    events.forEach((e) => window.addEventListener(e, measure))
+    document.addEventListener('visibilitychange', measure)
+    window.visualViewport?.addEventListener('resize', measure)
+    return () => {
+      timers.forEach(clearTimeout)
+      events.forEach((e) => window.removeEventListener(e, measure))
+      document.removeEventListener('visibilitychange', measure)
+      window.visualViewport?.removeEventListener('resize', measure)
+    }
+  }, [measure])
+
+  useLayoutEffect(measure, [stage, measure])
 
   useEffect(() => {
     if (stage === 'app') return
